@@ -24,17 +24,17 @@ const Options: NextPage<{options: any, setOptions: any}> = ({options, setOptions
     <label>
       From
       <br/>
-      <input onChange={onDateChange} name="from" type="date"
-        min={options.to ? new Date(options.to - 14 * 24 * 60 * 60 * 1000).yyyymmdd() : ''}
+      <input value={options.from ? new Date(options.from).yyyymmdd() : ''} onChange={onDateChange} name="from" type="date"
+        min={options.to ? new Date(options.to - 13 * 24 * 60 * 60 * 1000).yyyymmdd() : ''}
         max={options.to ? new Date(options.to).yyyymmdd() : ''}></input>
     </label>
     <br/>
     <label>
       To
       <br/>
-      <input onChange={onDateChange} name="to" type="date"
+      <input value={options.to ? new Date(options.to).yyyymmdd() : ''} onChange={onDateChange} name="to" type="date"
         min={options.from ? new Date(options.from).yyyymmdd() : ''}
-        max={options.from ? new Date(options.from + 14 * 24 * 60 * 60 * 1000).yyyymmdd() : ''}></input>
+        max={options.from ? new Date(options.from + 13 * 24 * 60 * 60 * 1000).yyyymmdd() : ''}></input>
     </label>
   </Main>)
 }

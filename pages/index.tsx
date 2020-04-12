@@ -21,14 +21,24 @@ const Home: NextPage<{}> = () => {
 
   useEffect(() => {
     let startIdx = 0 , endIdx = 0;
-    if (options.from && options.to) {
+    if (!options.from && !options.to) {
+      if (locations && locations.length !== 0) {
+        let lastDate = new Date(parseInt(locations[locations.length - 1].timestampMs))
+        lastDate = new Date(lastDate.yyyymmdd());
+        setOptions({
+          ...options,
+          to: lastDate.getTime() + 15 * 60 * 60 * 1000 - 1,
+          from: lastDate.getTime() - 13 * 24 * 60 * 60 * 1000
+        })
+      }
+    } else if (options.from && options.to) {
       for (startIdx = 0 ; startIdx < locations.length ; startIdx ++) {
-        if (locations[startIdx].timestampMs >= options.from) {
+        if (parseInt(locations[startIdx].timestampMs) >= options.from) {
           break;
         }
       }
       for (endIdx = startIdx ; endIdx < locations.length ; endIdx ++) {
-        if (locations[endIdx].timestampMs >= options.to) {
+        if (parseInt(locations[endIdx].timestampMs) >= options.to) {
           break;
         }
       }
