@@ -2,10 +2,13 @@ import { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
+const colors = ['#e6261f', '#e6521f', '#eb7532', '#eb9832', '#f7d038', '#a3e048', '#73e048', '#49da9a', 
+'#49dac4', '#34bbe6', '#3491e6', '#4355db', '#7343db', '#d23be7']
+
 const KakaoMap: NextPage<{validLocations: any[]}> = ({validLocations}) => {
   let a: any;
   const [map, setMap] = useState(a);
-  const [polyLine, setPolyLine] = useState(a);
+  const [polylines, setPolylines] = useState([]);
   useEffect(() => {
     const script = document.createElement("script");
     script.async = true;
@@ -29,32 +32,50 @@ const KakaoMap: NextPage<{validLocations: any[]}> = ({validLocations}) => {
 
  
   useEffect(() => {
-    if (map &&polyLine) {
-      polyLine.setMap(null);
+    // 선 초기화
+    if (map && polylines.length !== 0) {
+      for (let i = 0 ; i < polylines.length ; i ++)
+      polylines[i].setMap(null);
     }
-    if (map && validLocations && validLocations.length !== 0) {
 
+    // 맵 로드가 되었고 validLocations가 있으면 선 그리기
+    if (map && validLocations && validLocations.length !== 0) {
       const lastLocation = validLocations[validLocations.length - 1];
       map.setCenter(new kakao.maps.LatLng(lastLocation.latitudeE7 / (10 ** 7), lastLocation.longitudeE7 / (10 ** 7)))
 
-      let linePath = [];
-      // 선을 구성하는 좌표 배열입니다. 이 좌표들을 이어서 선을 표시합니다
-      for (let i = 0 ; i < validLocations.length ; i ++) {
-        linePath.push(new kakao.maps.LatLng(validLocations[i].latitudeE7 / (10 ** 7), validLocations[i].longitudeE7 / (10 ** 7)))
+      let polylinesKeep = [];
+      const firstDate = new Date(new Date(parseInt(validLocations[0].timestampMs)).yyyymmdd());
+      let j = 0 ;
+      for (let i = 0 ; i < 14 ; i ++) {
+        if (j === validLocations.length) {
+          break;
+        }
+        let linePath = [];
+
+        // 선을 구성하는 좌표 배열입니다. 이 좌표들을 이어서 선을 표시합니다
+
+        const today = new Date(firstDate.getTime() + i * 24 * 60 * 60 * 1000);
+
+        for ( ; j < validLocations.length ; j ++) {
+          if (parseInt(validLocations[j].timestampMs) >= (today.getTime() + 24 * 60 * 60 * 1000)) {
+            break;
+          }
+          linePath.push(new kakao.maps.LatLng(validLocations[j].latitudeE7 / (10 ** 7), validLocations[j].longitudeE7 / (10 ** 7)))
+        }
+
+        // 지도에 표시할 선을 생성합니다
+        const polyline = new kakao.maps.Polyline({
+            path: linePath, // 선을 구성하는 좌표배열 입니다
+            strokeWeight: 5, // 선의 두께 입니다
+            strokeColor: colors[i], // 선의 색깔입니다
+            strokeOpacity: 0.7, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
+            strokeStyle: 'solid' // 선의 스타일입니다
+        });
+        // 지도에 선을 표시합니다 
+        polyline.setMap(map); 
+        polylinesKeep.push(polyline);
       }
-
-      // 지도에 표시할 선을 생성합니다
-      var polyline = new kakao.maps.Polyline({
-        path: linePath, // 선을 구성하는 좌표배열 입니다
-        strokeWeight: 5, // 선의 두께 입니다
-        strokeColor: '#0489B1', // 선의 색깔입니다
-        strokeOpacity: 0.7, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
-        strokeStyle: 'solid' // 선의 스타일입니다
-      });
-
-      // 지도에 선을 표시합니다 
-      polyline.setMap(map); 
-      setPolyLine(polyline);
+      setPolylines(polylinesKeep);
     }
   }, [validLocations])
 
