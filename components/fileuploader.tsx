@@ -1,4 +1,5 @@
 import { NextPage } from 'next';
+import axios from 'axios';
 
 const FileUploader: NextPage<{setLocations: any}> = ({setLocations}) => {
 
@@ -13,9 +14,16 @@ const FileUploader: NextPage<{setLocations: any}> = ({setLocations}) => {
     fileReader.readAsText(e.target.files[0]);
   }
 
+  const onSampleUpload = () => {
+    axios.get('/api/sample').then((res) => {
+      setLocations(res.data.locations);
+    })
+  }
   return (<div>
     <label>
       파일 업로드
+      <br/>
+      <button onClick={onSampleUpload}>sample 등록</button>
       <input id="" type="file" accept=".json" onChange={onFileUpload}></input>
     </label>
   </div>)
