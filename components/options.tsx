@@ -13,9 +13,10 @@ Date.prototype.yyyymmdd = function() {
 
 const Options: NextPage<{options: any, setOptions: any}> = ({options, setOptions}) => {
   const onDateChange = (e) => {
+    console.log('value: ', e.target.value);
     const differ = e.target.name === "from" ? - 9 * 60 * 60 * 1000 : (15 * 60 * 60 * 1000 - 1);
     setOptions({...options, 
-      [e.target.name]: new Date(e.target.value).getTime() + differ
+      [e.target.name]: e.target.value ? new Date(e.target.value).getTime() + differ : 0
     })
   }
 
